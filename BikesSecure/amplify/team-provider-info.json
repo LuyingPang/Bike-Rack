@@ -10,6 +10,29 @@
       "StackName": "amplify-bikessecure-dev-195824",
       "StackId": "arn:aws:cloudformation:eu-central-1:647764297076:stack/amplify-bikessecure-dev-195824/66f6a950-96cf-11eb-9f80-0a6b294d7b36",
       "AmplifyAppId": "d8to4ss0n1pzq"
+    },
+    "categories": {
+      "auth": {
+        "bikessecured3de299c": {}
+      }
+    }
+  },
+  "devtwo": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-bikessecure-devtwo-204746-authRole",
+      "UnauthRoleArn": "arn:aws:iam::647764297076:role/amplify-bikessecure-devtwo-204746-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::647764297076:role/amplify-bikessecure-devtwo-204746-authRole",
+      "Region": "eu-central-1",
+      "DeploymentBucketName": "amplify-bikessecure-devtwo-204746-deployment",
+      "UnauthRoleName": "amplify-bikessecure-devtwo-204746-unauthRole",
+      "StackName": "amplify-bikessecure-devtwo-204746",
+      "StackId": "arn:aws:cloudformation:eu-central-1:647764297076:stack/amplify-bikessecure-devtwo-204746/9fe68ec0-9868-11eb-b7f8-06062435af2a",
+      "AmplifyAppId": "d8to4ss0n1pzq"
+    },
+    "categories": {
+      "auth": {
+        "bikessecured3de299c": {}
+      }
     }
   }
 }
