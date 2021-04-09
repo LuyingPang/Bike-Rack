@@ -37,7 +37,7 @@
             "awsAPIPlugin": {
                 "bikeapi": {
                     "endpointType": "REST",
-                    "endpoint": "https://20cz54qvoc.execute-api.ap-southeast-1.amazonaws.com/test",
+                    "endpoint": "https://8azj5kq7aj.execute-api.eu-central-1.amazonaws.com/bikestage",
                     "region": "eu-central-1",
                     "authorizationType": "AMAZON_COGNITO_USER_POOLS"
                 }
