@@ -23,9 +23,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /* simple button created to refresh using intents */
+    /* simple buttons to switch activities */
     public void mapButton(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
+
+    public void qrButton(View view) {
+        Intent intent = new Intent(this, QRScannerActivity.class);
         startActivity(intent);
     }
 
