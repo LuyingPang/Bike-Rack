@@ -1,13 +1,11 @@
 package com.example.bikessecure;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,7 +19,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.bikessecure.qrscanner.BarcodeGraphic;
 import com.example.bikessecure.qrscanner.BarcodeScannerProcessor;
 import com.example.bikessecure.qrscanner.CameraXViewModel;
 import com.example.bikessecure.qrscanner.ExchangeScannedData;
@@ -54,6 +51,7 @@ public class QRScannerActivity extends AppCompatActivity
     private VisionImageProcessor imageProcessor;
     private boolean needUpdateGraphicOverlayImageSourceInfo;
     private boolean receivedQRcodeData = false;
+    private String request;
 
     private CameraSelector cameraSelector;
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
@@ -64,6 +62,11 @@ public class QRScannerActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         Log.d(TAG, "onCreate");
 
+        // get the request from the dashboard button
+        Intent intent = getIntent();
+        request = intent.getStringExtra(MainActivity.REQUEST);
+
+
         /* camera selector, only thing I understand is choosing the back cam instead of face cam */
         if (savedInstanceState != null) {
             lensFacing = savedInstanceState.getInt(STATE_LENS_FACING, CameraSelector.LENS_FACING_BACK);
@@ -73,7 +76,6 @@ public class QRScannerActivity extends AppCompatActivity
         /* this controls the view (UI); see https://developer.android.com/topic/libraries/view-binding */
         binding = ActivityQRScannerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-//        setContentView(R.layout.activity_q_r_scanner);
 
         /* this helps to handle cases where we rotate the phone and stuff */
         new ViewModelProvider(
@@ -299,11 +301,20 @@ public class QRScannerActivity extends AppCompatActivity
         if (!receivedQRcodeData) {
             receivedQRcodeData = true;  // stops bindAllUseCase()
             // kill preview (freezes image)
-            previewUseCase.setSurfaceProvider(null);
-            cameraProvider.unbind(previewUseCase);
+            if (previewUseCase != null) {
+                previewUseCase.setSurfaceProvider(null);
+            }
+            if (cameraProvider != null) {
+                cameraProvider.unbind(previewUseCase);
+            }
             // kill analysis
-            imageProcessor.stop();
-            Log.i(TAG, "sendScannedCode received: "+ code);
+            if (imageProcessor != null) {
+                imageProcessor.stop();
+            }
+            // make POST request
+            RestApi.postRequest(/*standID: */code.split(",")[0],
+                                /*rackID: */code.split(",")[1],
+                                request);
         }
     }
 

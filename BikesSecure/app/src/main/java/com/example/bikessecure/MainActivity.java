@@ -7,10 +7,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.amplifyframework.api.rest.RestOptions;
-import com.amplifyframework.core.Amplify;
-
 public class MainActivity extends AppCompatActivity {
+    public static final String REQUEST = "com.example.bikessecure.REQUEST";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,8 +17,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         Authentication.signIn("username", "Password123");
-
-        Authentication.signOut();
+//        Authentication.signOut();
 
     }
 
@@ -31,20 +29,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void qrButton(View view) {
         Intent intent = new Intent(this, QRScannerActivity.class);
+        intent.putExtra(REQUEST, "lock");
         startActivity(intent);
     }
 
-    /* template POST request code, not sure where to put it yet */
-    void postRequest() {
-        // tested: needs to be signed in to use the rest API
-        RestOptions options = RestOptions.builder()
-                .addBody("{\"Stand ID\":\"stand 1\",\"Rack ID\":\"rack 1\",\"Request\":\"unlock\"}".getBytes())
-                .build();
 
-        Amplify.API.post(options,
-                restResponse -> Log.i("AuthRestAPI", "POST succeeded: " + restResponse.getData().asString()),
-                apiFailure -> Log.e("AuthRestAPI", "POST failed.", apiFailure)
-        );
-    }
 
 }
