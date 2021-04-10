@@ -3,16 +3,30 @@ package com.example.bikessecure;
 import androidx.fragment.app.FragmentActivity;
 
 import android.os.Bundle;
+import android.util.Log;
 
+import com.amplifyframework.api.rest.RestOptions;
+import com.amplifyframework.core.Amplify;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.JsonArray;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+//    public ArrayList<String> name_location = new ArrayList<String>(); // Create an ArrayList object for location name
+//    public ArrayList<String> avail_location = new ArrayList<String>(); // Create an ArrayList object for locations
+//    String rackinfo = "";
     private GoogleMap mMap;
 
     @Override
@@ -39,29 +53,65 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
         // add and move the map's camera to Singapore location.
+        this.mMap = googleMap;
         LatLng singa = new LatLng(1.3521, 103.8198);
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(singa));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singa, 10.0f));
         // add locations of donation places
-        LatLng PraiseHaven = new LatLng(1.362390, 103.768227);
-        LatLng TanglinFamHub = new LatLng(1.294710, 103.815086);
-        LatLng Hopectr = new LatLng(1.353750, 103.964729);
-        LatLng SalvationArmyHQ = new LatLng(1.360970, 103.842537);
-        LatLng TheHaven = new LatLng(1.290360, 103.775960);
-        LatLng IMMopenCP = new LatLng(1.349014, 103.743146);
-        LatLng MandaiStation = new LatLng(1.408700, 103.755997);
-        LatLng GraceHaven = new LatLng(1.371720, 103.877190);
-        // Add a marker in different places for donation with the salvation army
-        googleMap.addMarker(new MarkerOptions().position(PraiseHaven).title("Donate here at Praisehaven"));
-        googleMap.addMarker(new MarkerOptions().position(TanglinFamHub).title("Donate here at Tanglin Family Hub"));
-        googleMap.addMarker(new MarkerOptions().position(Hopectr).title("Donate here at Hope Centre"));
-        googleMap.addMarker(new MarkerOptions().position(SalvationArmyHQ).title("Donate here at The Salvation Army HQ"));
-        googleMap.addMarker(new MarkerOptions().position(TheHaven).title("Donate here at The Haven"));
-        googleMap.addMarker(new MarkerOptions().position(IMMopenCP).title("Donate here at IMM Open Carpark"));
-        googleMap.addMarker(new MarkerOptions().position(MandaiStation).title("Donate here at Mandai Station"));
-        googleMap.addMarker(new MarkerOptions().position(GraceHaven).title("Donate here at Gracehaven"));
+        RestOptions options = RestOptions.builder()
+                .addPath("/getstage")
+                .build();
 
+        Amplify.API.get(options,
+                restResponse -> {
+                    final String rackinfo = restResponse.getData().asString();
+//                    copy_rackinfo += rackinfo;
+                    Log.i("MyAmplifyApp", "GET succeeded: " + rackinfo);
+                    final ArrayList<String> name_location = new ArrayList<String>(); // Create an ArrayList object for location name
+                    final ArrayList<String> avail_location = new ArrayList<String>(); // Create an ArrayList object for locations
+                    try {
+                        // get JSONObject from json string
+                        JSONObject rackjson = new JSONObject(rackinfo);
+                        System.out.println("rackjson: "+rackjson);
+                        String racks = rackjson.getString("Items");
+                        System.out.println(racks);
+                        JSONArray rackitems = new JSONArray(racks);
+                        for(int i=0; i < rackitems.length(); i++) {
+                            JSONObject jsonobject = rackitems.getJSONObject(i);
+                            int freestand = jsonobject.getInt("Free Stands");
+                            String rackloc    = jsonobject.getString("Location");
+                            String rackid = jsonobject.getString("Rack ID");
+                            System.out.println(i+" Free stand: "+freestand+"\track location: "+rackloc+"rackid"+rackid);
+                            if (freestand>0) {
+                                name_location.add(rackid);
+                                avail_location.add(rackloc);
+                            }
+                        }
+                        for (int i=0;i<avail_location.size();i++){
+                            String[] rloc = avail_location.get(i).split(",");
+                            float lat = Float.parseFloat(rloc[0]);
+                            float lng = Float.parseFloat(rloc[1]);
+                            System.out.println(lat+lng);
+                            LatLng rackpos = new LatLng(lat,lng);
+                            System.out.println(rackpos+"--------");
+                            String addressname = name_location.get(i);
+                            System.out.println(addressname);
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    mMap.addMarker(new MarkerOptions().position(rackpos).title(addressname));
+                                }
+                            });
 
+                        }
+
+                    } catch (JSONException e){
+                        e.printStackTrace();
+                    }
+                },
+                apiFailure -> Log.e("MyAmplifyApp", "GET failed.", apiFailure)
+        );
+        System.out.println("is thus last?");
     }
 }
+
