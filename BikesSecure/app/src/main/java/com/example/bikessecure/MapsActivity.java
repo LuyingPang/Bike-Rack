@@ -5,10 +5,15 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.amplifyframework.api.rest.RestOptions;
 import com.amplifyframework.core.Amplify;
@@ -44,7 +49,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // A default location (Singapore) and default zoom to use when location permission is
     // not granted.
     private final LatLng defaultLocation = new LatLng(1.3521, 103.8198);
-    private static final int DEFAULT_ZOOM = 12;
+    private static final int DEFAULT_ZOOM = 15;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean locationPermissionGranted;
 
@@ -68,7 +73,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mapFragment.getMapAsync(this);
         }
     }
-
 
     /**
      * Manipulates the map once available.
@@ -145,8 +149,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Turn on the My Location layer and the related control on the map.
         updateLocationUI();
 
-        // Get the current location of the device and set the position of the map.
         getDeviceLocation();
+
     }
 
     /**
@@ -157,23 +161,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
          * Get the best and most recent location of the device, which may be null in rare
          * cases when a location is not available.
          */
-        try {
-            if (locationPermissionGranted) {
+        try {// check gps on/off
+            final LocationManager manager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE );
+
+            if (locationPermissionGranted && manager.isProviderEnabled( LocationManager.GPS_PROVIDER )) {
+                Toast.makeText(getApplicationContext(), "GPS is Enabled!", Toast.LENGTH_LONG).show();
                 Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(this, new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
+
                         if (task.isSuccessful()) {
                             // Set the map's camera position to the current location of the device.
                             lastKnownLocation = task.getResult();
-                            System.out.println("============="+lastKnownLocation);
                             if (lastKnownLocation != null) {
                                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                         new LatLng(lastKnownLocation.getLatitude(),
                                                 lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                             }
                         } else {
-                            System.out.println("============= granted but null value");
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
                             mMap.moveCamera(CameraUpdateFactory
@@ -183,11 +189,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     }
                 });
             }
-            else {
-                System.out.println("============= permission not granted");
-                Log.d(TAG, "Using defaults as location permission not allowed.");
+            else{
+                if (locationPermissionGranted) {
+                    gpsChecker(manager);
+                }
+                Log.d(TAG, "Using defaults cuz gps/location permission not allowed");
                 mMap.moveCamera(CameraUpdateFactory
                         .newLatLngZoom(defaultLocation, 10));
+                mMap.getUiSettings().setMyLocationButtonEnabled(false);
             }
         } catch (SecurityException e)  {
             Log.e("Exception: %s", e.getMessage(), e);
@@ -228,6 +237,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     locationPermissionGranted = true;
+
+                    final LocationManager manager = (LocationManager) getApplicationContext().getSystemService(Context.LOCATION_SERVICE );
+                    gpsChecker(manager);
                 }
             }
         }
@@ -256,5 +268,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void gpsChecker(LocationManager manager){
+
+        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            Toast.makeText(getApplicationContext(), "GPS is disable! Please enable it.", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+    }
 }
 
