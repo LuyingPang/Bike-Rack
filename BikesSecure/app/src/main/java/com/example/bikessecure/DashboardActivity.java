@@ -7,29 +7,30 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-public class MainActivity extends AppCompatActivity {
-    public static final String REQUEST = "com.example.bikessecure.REQUEST";
 
+public class DashboardActivity extends AppCompatActivity {
+    private static final String TAG = "DashboardActivity";
+    public static final String REQUEST = "com.example.bikessecure.REQUEST";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_dashboard);
 
         Authentication.signIn("username", "Password123");
 //        Authentication.signOut();
 
     }
 
-    /* simple buttons to switch activities */
-    public void mapButton(View view) {
+    /* attached to onClick to switch activities */
+    public void toMapsActivity(View view) {
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);
     }
 
-    public void qrButton(View view) {
+    public void toQRScannerActivity(View view) {
         Intent intent = new Intent(this, QRScannerActivity.class);
-        intent.putExtra(REQUEST, "lock");
+        intent.putExtra(REQUEST, (String) view.getTag());
         startActivity(intent);
     }
 

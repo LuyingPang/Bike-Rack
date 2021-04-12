@@ -64,7 +64,10 @@ dependencies {
     implementation "androidx.camera:camera-lifecycle:1.0.0-beta04"
     implementation "androidx.camera:camera-view:1.0.0-alpha11"
 
-
     // google maps
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+
+    // cardview
+    implementation "androidx.cardview:cardview:1.0.0"
+
 }

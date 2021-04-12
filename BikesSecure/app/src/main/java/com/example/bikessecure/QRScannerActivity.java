@@ -26,6 +26,8 @@ import com.example.bikessecure.qrscanner.VisionImageProcessor;
 import com.example.bikessecure.databinding.ActivityQRScannerBinding;
 import com.google.mlkit.common.MlKitException;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,11 +62,11 @@ public class QRScannerActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "onCreate");
 
         // get the request from the dashboard button
         Intent intent = getIntent();
-        request = intent.getStringExtra(MainActivity.REQUEST);
+        request = intent.getStringExtra(DashboardActivity.REQUEST);
+        Log.i(TAG, "received request: " + request);
 
 
         /* camera selector, only thing I understand is choosing the back cam instead of face cam */
@@ -283,7 +285,7 @@ public class QRScannerActivity extends AppCompatActivity
      */
     @Override
     public void onRequestPermissionsResult(
-            int requestCode, String[] permissions, int[] grantResults) {
+            int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         Log.i(TAG, "Permission granted!");
         if (allPermissionsGranted()) {
             bindAllCameraUseCases();

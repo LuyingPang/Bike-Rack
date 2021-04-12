@@ -8,6 +8,8 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="cardBackground">#FBFBFB</color>
+
     <!--  for activity_q_r_scanner.xml  -->
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorBackground">#121212</color>

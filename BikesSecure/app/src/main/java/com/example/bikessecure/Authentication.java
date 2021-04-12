@@ -8,15 +8,14 @@ import com.amplifyframework.auth.options.AuthSignUpOptions;
 import com.amplifyframework.core.Amplify;
 
 public class Authentication {
+    private static final String TAG = "Authentication";
     private static final String testUsername = "username";
     private static final String testPassword = "Password123";
 
     public static void signIn (String username, String password) {
         Amplify.Auth.signIn( username, password,
-                result -> {
-                    Log.i("Authentication/signIn", result.isSignInComplete() ? "Sign in succeeded" : "Sign in not complete");
-                },
-                error -> Log.e("Authentication/signIn", error.toString())
+                result -> Log.i(TAG+"/signIn", result.isSignInComplete() ? "Sign in succeeded" : "Sign in not complete"),
+                error -> Log.e(TAG+"/signIn", error.toString())
         );
     }
 
@@ -25,27 +24,32 @@ public class Authentication {
                 .userAttribute(AuthUserAttributeKey.email(), email)
                 .build();
         Amplify.Auth.signUp(username, password, options,
-                result -> Log.i("Authentication/signUp", "Result: " + result.toString()),
-                error -> Log.e("Authentication/signUp", "Sign up failed", error)
+                result -> Log.i(TAG+"/signUp", "Result: " + result.toString()),
+                error -> Log.e(TAG+"/signUp", "Sign up failed", error)
         );
     }
 
     public static void confirmSignUp (String username, String confirmationCode) {
         Amplify.Auth.confirmSignUp( username, confirmationCode,
-                result -> Log.i("Authentication/confirm", result.isSignUpComplete() ? "Confirm sign up succeeded" : "Confirm sign up not complete"),
-                error -> Log.e("Authentication/confirm", error.toString())
+                result -> Log.i(TAG+"/confirm", result.isSignUpComplete() ? "Confirm sign up succeeded" : "Confirm sign up not complete"),
+                error -> Log.e(TAG+"/confirm", error.toString())
         );
     }
 
     public static void signOut () {
         Amplify.Auth.signOut(
-                () -> Log.i("Authentication/signOut", "Signed out successfully"),
-                error -> Log.e("Authentication/signOut", error.toString())
+                () -> Log.i(TAG+"/signOut", "Signed out successfully"),
+                error -> Log.e(TAG+"/signOut", error.toString())
         );
     }
 
+    public static String getUserSub () {
+//        Log.i(TAG+"/UserSub", Amplify.Auth.getCurrentUser().getUserId());
+        return Amplify.Auth.getCurrentUser().getUserId();
+    }
+
     /* Method not in use, but keeping code in case we need it */
-    private static void getTokens () {
+    /*private static void getTokens () {
         Amplify.Auth.fetchAuthSession(
                 result -> {
                     AWSCognitoAuthSession cognitoAuthSession = (AWSCognitoAuthSession) result;
@@ -60,6 +64,6 @@ public class Authentication {
                 },
                 error -> Log.e("AuthQuickStart", error.toString())
         );
-    }
+    }*/
 
 }

@@ -11,26 +11,8 @@ public class RestApi {
 
     public static void postRequest(String standID, String rackID, String request) {
 
-        String jsonFormat = String.format("{\"Stand ID\":\"%s\",\"Rack ID\":\"%s\",\"Request\":\"%s\",\"Password\":\"\"}",
-                                            standID, rackID, request);
-
-        RestOptions options = RestOptions.builder()
-                .addPath("/bikestage")
-                .addBody(jsonFormat.getBytes())
-                .build();
-
-        Amplify.API.post(options,
-                restResponse -> {
-                    Log.i(TAG+"/postRequest", "POST succeeded: " + restResponse.getData().asString());
-                },
-                apiFailure -> Log.e(TAG+"/postRequest", "POST failed.", apiFailure)
-        );
-    }
-
-    public static void postRequest(String standID, String rackID, String request, String password) {
-
         String jsonFormat = String.format("{\"Stand ID\":\"%s\",\"Rack ID\":\"%s\",\"Request\":\"%s\",\"Password\":\"%s\"}",
-                standID, rackID, request, password);
+                                            standID, rackID, request, Authentication.getUserSub());
 
         RestOptions options = RestOptions.builder()
                 .addPath("/bikestage")
@@ -38,9 +20,7 @@ public class RestApi {
                 .build();
 
         Amplify.API.post(options,
-                restResponse -> {
-                    Log.i(TAG+"/postRequest", "POST succeeded: " + restResponse.getData().asString());
-                },
+                restResponse -> Log.i(TAG+"/postRequest", "POST succeeded: " + restResponse.getData().asString()),
                 apiFailure -> Log.e(TAG+"/postRequest", "POST failed.", apiFailure)
         );
     }
