@@ -1,8 +1,7 @@
 package com.example.bikessecure;
 
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +18,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.amplifyframework.api.rest.RestOptions;
+import com.amplifyframework.core.Amplify;
 import com.example.bikessecure.qrscanner.BarcodeScannerProcessor;
 import com.example.bikessecure.qrscanner.CameraXViewModel;
 import com.example.bikessecure.qrscanner.ExchangeScannedData;
@@ -27,9 +28,7 @@ import com.example.bikessecure.databinding.ActivityQRScannerBinding;
 import com.google.mlkit.common.MlKitException;
 
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.json.JSONException;
 
 /**
  * QR scanner code adapted from:
@@ -39,9 +38,11 @@ public class QRScannerActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback, ExchangeScannedData {
 
     private static final String TAG = "QRScannerActivity";  // for Log
-    private static final int PERMISSION_REQUESTS = 1;  // used as a request code to this function
 
     private ActivityQRScannerBinding binding;
+
+    private static final int PERMISSIONS_REQUEST_CAMERA = 1;
+    private boolean cameraPermissionGranted;
 
     @Nullable
     private ProcessCameraProvider cameraProvider;
@@ -52,8 +53,10 @@ public class QRScannerActivity extends AppCompatActivity
     @Nullable
     private VisionImageProcessor imageProcessor;
     private boolean needUpdateGraphicOverlayImageSourceInfo;
-    private boolean receivedQRcodeData = false;
+
     private String request;
+    private boolean receivedQRcodeData = false;
+    public static final String RESPONSE_MESSAGE = "com.example.bikessecure.RESPONSE_MESSAGE";
 
     private CameraSelector cameraSelector;
     private int lensFacing = CameraSelector.LENS_FACING_BACK;
@@ -63,11 +66,12 @@ public class QRScannerActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // get the request from the dashboard button
-        Intent intent = getIntent();
-        request = intent.getStringExtra(DashboardActivity.REQUEST);
+        /* get request passed by DashboardActivity */
+        request = getIntent().getStringExtra(DashboardActivity.REQUEST);
         Log.i(TAG, "received request: " + request);
 
+        /* checks for camera permission, and request if necessary */
+        getCameraPermission();
 
         /* camera selector, only thing I understand is choosing the back cam instead of face cam */
         if (savedInstanceState != null) {
@@ -88,17 +92,12 @@ public class QRScannerActivity extends AppCompatActivity
                         this,
                         provider -> {
                             cameraProvider = provider;
-                            if (allPermissionsGranted()) {
+                            if (cameraPermissionGranted) {
                                 // binds Preview and ImageAnalysis to view,
                                 //  and run the processing (within the use cases code)
                                 bindAllCameraUseCases();
                             }
                         });
-
-        /* permissions, check and request if necessary */
-        if (!allPermissionsGranted()) {
-            getRuntimePermissions();
-        }
 
     }
 
@@ -222,72 +221,31 @@ public class QRScannerActivity extends AppCompatActivity
     }
 
     /**
-     * gets required permissions (getRequiredPermissions) and checks
-     *  if each permission is granted (isPermissionGranted)
+     * Prompts the user for permission to use the device camera
+     *  (adapted from getLocationPermission)
      */
-    private boolean allPermissionsGranted() {
-        for (String permission : getRequiredPermissions()) {
-            if (!isPermissionGranted(this, permission)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     *  gets required permissions (getRequiredPermissions) and requests them
-     */
-    private void getRuntimePermissions() {
-        List<String> allNeededPermissions = new ArrayList<>();
-        for (String permission : getRequiredPermissions()) {
-            if (!isPermissionGranted(this, permission)) {
-                allNeededPermissions.add(permission);
-            }
-        }
-
-        if (!allNeededPermissions.isEmpty()) {
-            ActivityCompat.requestPermissions(
-                    this, allNeededPermissions.toArray(new String[0]), PERMISSION_REQUESTS);
-        }
-    }
-
-    private String[] getRequiredPermissions() {
-        try {
-            PackageInfo info =
-                    this.getPackageManager()
-                            .getPackageInfo(this.getPackageName(), PackageManager.GET_PERMISSIONS);
-            String[] ps = info.requestedPermissions;
-            if (ps != null && ps.length > 0) {
-                return ps;
-            } else {
-                return new String[0];
-            }
-        } catch (Exception e) {
-            return new String[0];
-        }
-    }
-
-    private static boolean isPermissionGranted(Context context, String permission) {
-        if (ContextCompat.checkSelfPermission(context, permission)
+    private void getCameraPermission() {
+        if (ContextCompat.checkSelfPermission(this.getApplicationContext(),
+                Manifest.permission.CAMERA)
                 == PackageManager.PERMISSION_GRANTED) {
-            Log.i(TAG, "Permission granted: " + permission);
-            return true;
+            cameraPermissionGranted = true;
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    PERMISSIONS_REQUEST_CAMERA);
         }
-        Log.i(TAG, "Permission NOT granted: " + permission);
-        return false;
     }
 
-
     /**
-     * handles permission request results called by getRuntimePermissions()
+     * handles permission request results called by getCameraPermission()
      *  binds all camera use cases after each permission is granted
-     *  needs Activity to implement OnRequestPermissionsResultCallback
+     *  needs Activity to implement OnRequestPermissionsResultCallback (?)
      */
     @Override
     public void onRequestPermissionsResult(
             int requestCode, @NotNull String[] permissions, @NotNull int[] grantResults) {
         Log.i(TAG, "Permission granted!");
-        if (allPermissionsGranted()) {
+        if (cameraPermissionGranted) {
             bindAllCameraUseCases();
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -302,22 +260,53 @@ public class QRScannerActivity extends AppCompatActivity
     public void sendScannedCode(String code) {
         if (!receivedQRcodeData) {
             receivedQRcodeData = true;  // stops bindAllUseCase()
+            Toast.makeText(getApplicationContext(),"Sending scanned data...",
+                    Toast.LENGTH_SHORT).show();
             // kill preview (freezes image)
-            if (previewUseCase != null) {
-                previewUseCase.setSurfaceProvider(null);
-            }
             if (cameraProvider != null) {
                 cameraProvider.unbind(previewUseCase);
+            }
+            if (previewUseCase != null) {
+                previewUseCase.setSurfaceProvider(null);
             }
             // kill analysis
             if (imageProcessor != null) {
                 imageProcessor.stop();
             }
             // make POST request
-            RestApi.postRequest(/*standID: */code.split(",")[0],
-                                /*rackID: */code.split(",")[1],
-                                request);
+            postRequest(/*standID: */code.split(",")[0],
+                        /*rackID: */code.split(",")[1],
+                        request);
         }
+    }
+
+    /**
+     * make a POST request using API attached to Amplify
+     */
+    private void postRequest(String standID, String rackID, String request) {
+
+        String jsonFormat = String.format("{\"Stand ID\":\"%s\",\"Rack ID\":\"%s\",\"Request\":\"%s\",\"Password\":\"%s\"}",
+                standID, rackID, request, Authentication.getUserSub());
+
+        RestOptions options = RestOptions.builder()
+                .addPath("/bikestage")
+                .addBody(jsonFormat.getBytes())
+                .build();
+
+        Amplify.API.post(options,
+                restResponse -> {
+                    Log.i(TAG+"/POST", "POST succeeded: " + restResponse.getData().asString());
+                    try {
+                        Intent intent = new Intent(this, DashboardActivity.class);
+                        intent.putExtra(RESPONSE_MESSAGE, restResponse.getData().asJSONObject().getString("app"));
+                        startActivity(intent);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.e(TAG+"/POST","JSONException", e);
+                    }
+                },
+                apiFailure -> Log.e(TAG+"/POST", "POST failed.", apiFailure)
+        );
     }
 
     /*
@@ -326,6 +315,7 @@ public class QRScannerActivity extends AppCompatActivity
     *  remove the scan results portion of the UI
     *  only allow the scanning of 1 QR code each time the activity is called (see sendScannedCode())
     *  sendScannedCode() creates the POST request to API Gateway
+    *  simpler permissions checking
     * */
 
 }
