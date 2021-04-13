@@ -7,47 +7,86 @@ import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
+import com.example.bikessecure.databinding.ActivityDashboardBinding;
+
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 
 public class DashboardActivity extends AppCompatActivity {
-    private static final String TAG = "DashboardActivity";
+    private static final String TAG = DashboardActivity.class.getSimpleName();
     private static final int PERMISSIONS_REQUEST = 1;
     public static final String REQUEST = "com.example.bikessecure.REQUEST";
 
-    private AlertDialog.Builder alertDialogBuilder;
+    private ActivityDashboardBinding binding;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_dashboard);
+
+        // inflate first so I can change it
+        binding = ActivityDashboardBinding.inflate(getLayoutInflater());
+
+        /* check preferences and switch before showing dashboard */
+        SharedPreferences sharedPref = getSharedPreferences(
+                getString(R.string.sharedpref_user_state), Context.MODE_PRIVATE);
+        Log.i(TAG, sharedPref.getAll().toString());
+        HashSet<String> user_state = (HashSet<String>) sharedPref.getStringSet(
+                Authentication.getUserSub(), null);
+
+        if (user_state != null && user_state.contains("lock")) {
+            Log.i(TAG, "state of " + Authentication.getUserSub()
+                    + ": " + user_state.toString());
+            binding.cardLock.setVisibility(View.INVISIBLE);
+            HashSet<String> user_state_copy = new HashSet<>(user_state);
+            user_state_copy.remove("lock");
+            String card_text_unlock = getString(R.string.card_text_unlock);
+            binding.textUnlock.setText(card_text_unlock.replace("[here]", user_state_copy.toString()));
+            binding.cardUnlock.setVisibility(View.VISIBLE);
+        }
+        else {
+            if (user_state != null)
+                Log.i(TAG, "state of " + Authentication.getUserSub()
+                        + ": " + user_state.toString());
+            binding.cardUnlock.setVisibility(View.INVISIBLE);
+            binding.cardLock.setVisibility(View.VISIBLE);
+        }
+
+        setContentView(binding.getRoot());
+
 
         /* get extras from intent */
         Bundle extras = getIntent().getExtras();
-
         /* alert dialog */
-        alertDialogBuilder = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
+        // get methods return null if object is not present
+        //  -> useful to check who sent the intent
         if (extras != null) {
             String response_message = extras.getCharSequence(QRScannerActivity.RESPONSE_MESSAGE).toString();
-            alertDialogBuilder.setMessage(response_message).setCancelable(true)
-                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            alertDialog.show();
+            if (!response_message.equals("")) { // check for null response
+                alertDialogBuilder.setMessage(response_message).setCancelable(true)
+                        .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
         }
 
         Authentication.signIn("username", "Password123");
 //        Authentication.signOut();
 
+        // TODO: only run this when sign in happens
         /* check that all permissions required are given */
 //        if (!allPermissionsGranted()) {
 //            getRuntimePermissions();

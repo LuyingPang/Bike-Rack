@@ -1,7 +1,9 @@
 package com.example.bikessecure;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,6 +31,9 @@ import com.google.mlkit.common.MlKitException;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashSet;
 
 /**
  * QR scanner code adapted from:
@@ -37,7 +42,7 @@ import org.json.JSONException;
 public class QRScannerActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback, ExchangeScannedData {
 
-    private static final String TAG = "QRScannerActivity";  // for Log
+    private static final String TAG = QRScannerActivity.class.getSimpleName();
 
     private ActivityQRScannerBinding binding;
 
@@ -297,9 +302,39 @@ public class QRScannerActivity extends AppCompatActivity
                 restResponse -> {
                     Log.i(TAG+"/POST", "POST succeeded: " + restResponse.getData().asString());
                     try {
+                        JSONObject responseJSON = restResponse.getData().asJSONObject();
+
+                        /* edit preferences if user managed to lock/unlock (check update & device) */
+                        if (responseJSON.getString("update").equals("true")) {
+                            Log.i(TAG+"/POST", "change in user state, updating preferences.");
+
+                            // string set to put into preferences
+                            HashSet<String> user_state = new HashSet<>();
+                            switch (request) {
+                                case "unlock":
+                                    user_state.add("unlock");
+                                    break;
+                                case "lock":
+                                    user_state.add("lock");
+                                    user_state.add(rackID);
+                                    user_state.add(standID);
+                                    break;
+                            }
+
+                            SharedPreferences sharedPref = getSharedPreferences(
+                                    getString(R.string.sharedpref_user_state), Context.MODE_PRIVATE);
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putStringSet(Authentication.getUserSub(),user_state);
+                            editor.apply();
+                            Log.i(TAG+"/POST", "state of " + Authentication.getUserSub()
+                                    + ": " + user_state.toString());
+                        }
+
+                        /* get response message and pass it to the dashboard to display as a dialog */
                         Intent intent = new Intent(this, DashboardActivity.class);
-                        intent.putExtra(RESPONSE_MESSAGE, restResponse.getData().asJSONObject().getString("app"));
+                        intent.putExtra(RESPONSE_MESSAGE, responseJSON.getString("app"));
                         startActivity(intent);
+
                     } catch (JSONException e) {
                         e.printStackTrace();
                         Log.e(TAG+"/POST","JSONException", e);

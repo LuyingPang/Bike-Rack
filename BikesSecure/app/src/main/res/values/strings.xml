@@ -3,10 +3,12 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_qrscanner">QR Scanner</string>
 
+    <string name="sharedpref_user_state">com.example.bikessecure.USER_STATE</string>
+
     <string name="card_text_lock">Secure bike</string>
     <string name="card_text_maps">Locate bike racks</string>
     <string name="card_text_faulty">Report faulty stand</string>
-    <string name="card_text_unlock">"Location:\nRack 1\nStand:    1"</string>
+    <string name="card_text_unlock">"Location:\n[here]"</string>
 
 
 </resources>
