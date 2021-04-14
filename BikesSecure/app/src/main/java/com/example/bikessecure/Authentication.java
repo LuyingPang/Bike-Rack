@@ -7,6 +7,13 @@ import com.amplifyframework.auth.cognito.AWSCognitoAuthSession;
 import com.amplifyframework.auth.options.AuthSignUpOptions;
 import com.amplifyframework.core.Amplify;
 
+/**
+ * a class to wrap all the authentication functions we thought we might use
+ *  the only one we ended up using was getUserSub(), which just reduced the need to
+ *  add auth library to every activity.
+ *   (for signIn, I needed to add it directly to LoginActivity cos I didn't know how to interact
+ *      with the result if I use the version here)
+ */
 public class Authentication {
     private static final String TAG = "Authentication";
     private static final String testUsername = "username";

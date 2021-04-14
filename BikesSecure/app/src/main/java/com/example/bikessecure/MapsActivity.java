@@ -271,7 +271,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void gpsChecker(LocationManager manager){
 
         if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
-            Toast.makeText(getApplicationContext(), "GPS is disable! Please enable it.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "GPS is disabled! Please enable it.", Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
         }

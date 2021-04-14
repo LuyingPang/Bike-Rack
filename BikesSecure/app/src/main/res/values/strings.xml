@@ -5,10 +5,16 @@
 
     <string name="sharedpref_user_state">com.example.bikessecure.USER_STATE</string>
 
+    <string name="textView_text_username">Username:</string>
+    <string name="editText_hint_username">username</string>
+    <string name="textView_text_password">Password:</string>
+    <string name="editText_hint_password">Password123</string>
+    <string name="button_text_login">Login</string>
+
     <string name="card_text_lock">Secure bike</string>
     <string name="card_text_maps">Locate bike racks</string>
     <string name="card_text_faulty">Report faulty stand</string>
-    <string name="card_text_unlock">"Location:\n[here]"</string>
+    <string name="card_text_unlock">"Unlock bike\nLocation:\n[here]"</string>
 
 
 </resources>
