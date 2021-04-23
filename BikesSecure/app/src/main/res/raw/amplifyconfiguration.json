@@ -4,24 +4,22 @@
     "auth": {
         "plugins": {
             "awsCognitoAuthPlugin": {
-                "UserAgent": "aws-amplify-cli/0.1.0",
-                "Version": "0.1.0",
                 "IdentityManager": {
                     "Default": {}
                 },
                 "CredentialsProvider": {
                     "CognitoIdentity": {
                         "Default": {
-                            "PoolId": "eu-central-1:81993b7a-920b-4dbf-9aa9-6d11a337b4b2",
-                            "Region": "eu-central-1"
+                            "PoolId": "[COGNITO IDENTITY POOL ID]",
+                            "Region": "[REGION]"
                         }
                     }
                 },
                 "CognitoUserPool": {
                     "Default": {
-                        "PoolId": "eu-central-1_CxbvrKWeA",
-                        "AppClientId": "2qjmfvv0og3jq868hjtcku9ccb",
-                        "Region": "eu-central-1"
+                        "PoolId": "[COGNITO USER POOL ID]",
+                        "AppClientId": "[COGNITO USER POOL APP CLIENT ID]",
+                        "Region": "[REGION]"
                     }
                 },
                 "Auth": {
@@ -37,8 +35,8 @@
             "awsAPIPlugin": {
                 "bikeapi": {
                     "endpointType": "REST",
-                    "endpoint": "https://8azj5kq7aj.execute-api.eu-central-1.amazonaws.com",
-                    "region": "eu-central-1",
+                    "endpoint": "[API GATEWAY ENDPOINT]",
+                    "region": "[REGION]",
                     "authorizationType": "AMAZON_COGNITO_USER_POOLS"
                 }
             }
