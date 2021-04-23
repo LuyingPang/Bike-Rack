@@ -294,7 +294,7 @@ public class QRScannerActivity extends AppCompatActivity
                 standID, rackID, request, LoginActivity.getUserSub());
 
         RestOptions options = RestOptions.builder()
-                .addPath(getString(R.string.api_stage_name))
+                .addPath(getString(R.string.api_stage_name_qrscanner))
                 .addBody(jsonFormat.getBytes())
                 .build();
 

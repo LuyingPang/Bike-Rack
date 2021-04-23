@@ -90,7 +90,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // add locations of donation places
         RestOptions options = RestOptions.builder()
-                .addPath(getString(R.string.api_stage_name))
+                .addPath(getString(R.string.api_stage_name_map))
                 .build();
 
         Amplify.API.get(options,
