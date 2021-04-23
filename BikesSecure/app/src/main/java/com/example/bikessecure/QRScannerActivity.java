@@ -291,10 +291,10 @@ public class QRScannerActivity extends AppCompatActivity
     private void postRequest(String standID, String rackID, String request) {
 
         String jsonFormat = String.format("{\"Stand ID\":\"%s\",\"Rack ID\":\"%s\",\"Request\":\"%s\",\"Password\":\"%s\"}",
-                standID, rackID, request, Authentication.getUserSub());
+                standID, rackID, request, LoginActivity.getUserSub());
 
         RestOptions options = RestOptions.builder()
-                .addPath("/bikestage")
+                .addPath(getString(R.string.api_stage_name))
                 .addBody(jsonFormat.getBytes())
                 .build();
 
@@ -324,9 +324,9 @@ public class QRScannerActivity extends AppCompatActivity
                             SharedPreferences sharedPref = getSharedPreferences(
                                     getString(R.string.sharedpref_user_state), Context.MODE_PRIVATE);
                             SharedPreferences.Editor editor = sharedPref.edit();
-                            editor.putStringSet(Authentication.getUserSub(),user_state);
+                            editor.putStringSet(LoginActivity.getUserSub(),user_state);
                             editor.apply();
-                            Log.i(TAG+"/POST", "state of " + Authentication.getUserSub()
+                            Log.i(TAG+"/POST", "state of " + LoginActivity.getUserSub()
                                     + ": " + user_state.toString());
                         }
 

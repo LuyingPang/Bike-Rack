@@ -45,12 +45,12 @@ public class DashboardActivity extends AppCompatActivity {
                     getString(R.string.sharedpref_user_state), Context.MODE_PRIVATE);
 //            Log.i(TAG, sharedPref.getAll().toString());
             HashSet<String> user_state = (HashSet<String>) sharedPref.getStringSet(
-                    Authentication.getUserSub(), null);
+                    LoginActivity.getUserSub(), null);
 
             // if user's state is present, check if bike is locked or unlocked and
             //   display the right card (lock is default)
             if (user_state != null && user_state.contains("lock")) {
-                Log.i(TAG, "state of " + Authentication.getUserSub()
+                Log.i(TAG, "state of " + LoginActivity.getUserSub()
                         + ": " + user_state.toString());
                 binding.cardLock.setVisibility(View.INVISIBLE);
                 HashSet<String> user_state_copy = new HashSet<>(user_state);  // to prevent editing of the preference value
@@ -61,7 +61,7 @@ public class DashboardActivity extends AppCompatActivity {
             }
             else {
                 if (user_state != null)
-                    Log.i(TAG, "state of " + Authentication.getUserSub()
+                    Log.i(TAG, "state of " + LoginActivity.getUserSub()
                             + ": " + user_state.toString());
                 binding.cardUnlock.setVisibility(View.INVISIBLE);
                 binding.cardLock.setVisibility(View.VISIBLE);

@@ -3,13 +3,20 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_qrscanner">QR Scanner</string>
 
+    <string name="api_stage_name">beta</string>
+
     <string name="sharedpref_user_state">com.example.bikessecure.USER_STATE</string>
 
     <string name="textView_text_username">Username:</string>
     <string name="editText_hint_username">username</string>
     <string name="textView_text_password">Password:</string>
-    <string name="editText_hint_password">Password123</string>
+    <string name="editText_hint_password">password</string>
+    <string name="textView_text_email">Email:</string>
+    <string name="editText_hint_email">email@domain</string>
     <string name="button_text_login">Login</string>
+    <string name="button_text_signup">Sign Up</string>
+    <string name="editText_hint_code">code</string>
+    <string name="button_text_confirmcode">Confirm Code</string>
 
     <string name="card_text_lock">Secure bike</string>
     <string name="card_text_maps">Locate bike racks</string>
