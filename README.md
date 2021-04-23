@@ -15,7 +15,7 @@ Now replace the following as specified:
   [COGNITO USER POOL APP CLIENT ID] : from ‘Creating Cognito user pool’ step 13
   [API GATEWAY ENDPOINT] : from ‘Setup API Gateway’ step 16 (do not include ‘beta’)
 ```
-You should also edit the relevant paths for the POST and GET methods in `strings.xml` (the values of `api_stage_name_qrscanner` and `api_stage_name_map` respectively).
+You should also edit the relevant paths for the POST and GET methods in `strings.xml` (the values of `api_stage_name_qrscanner` and `api_stage_name_map` respectively). They should both be `beta` if you followed `cloudSetup.pdf`.  
 Once that is done, the app is ready to be built.
 
 ### Log in to the app
