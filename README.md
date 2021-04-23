@@ -6,8 +6,7 @@ Follow `cloudSetup.pdf` (in the `cloudSetup` folder) to setup the cloud. It deta
 ---
 
 ### BikesSecure app
-Open the `BikesSecure` folder in Android Studio (the main Android Studio project folder)
-If using you own AWS services, replace the following in `amplifyconfiguration.json` with `amplifyconfiguration_template.json` (folder: `app\src\main\res\raw`). You would need to have completed the cloud setup step.
+Open the `BikesSecure` folder in Android Studio (the main Android Studio project folder). If using you own AWS services, replace the following in `amplifyconfiguration.json` with `amplifyconfiguration_template.json` (folder: `app\src\main\res\raw`). You would need to have completed the cloud setup step.  
 Now replace the following as specified:
 ```
   [COGNITO IDENTITY POOL ID] : from ‘Creating Cognito identity pool’ step 7
