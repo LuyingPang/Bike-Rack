@@ -15,6 +15,13 @@ Replace the following in `amplifyconfiguration.json` (folder: `app\src\main\res\
   [COGNITO USER POOL APP CLIENT ID] : from ‘Creating Cognito user pool’ step 13
   [API GATEWAY ENDPOINT] : from ‘Setup API Gateway’ step 16 (do not include ‘beta’)
 ```
+Once that is done, the app is ready to be built.
+
+### Log in to the app
+To log in, you would first need to create an account. Key in a username, password and email to sign up.
+Once you click `Sign Up`, a confirmation code would be send to your email. Key it in to the new text box and press `Cofnrim Code`. You would then sign in to the app.
+
+On subsequent sign ins, you would just need your username and password.
 
 ---
 
